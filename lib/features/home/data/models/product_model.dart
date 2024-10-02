@@ -1,7 +1,9 @@
-class ProductModel {
+import 'package:e_commerce_cleac_arch/features/home/domain/entites/product_entity.dart';
+
+class ProductModel extends ProductEntity {
   final int id;
   final String title, description, category, image;
-  final double price;
+  final num price;
   final Rating rating;
 
   ProductModel(
@@ -11,7 +13,16 @@ class ProductModel {
       required this.category,
       required this.image,
       required this.price,
-      required this.rating});
+      required this.rating})
+      : super(
+            productId: id,
+            productTitle: title,
+            productDescription: description,
+            productCategory: category,
+            productImage: image,
+            productPrice: price,
+            productRating: rating.rating,
+            productCount: rating.count);
 
   factory ProductModel.fromJson(Map<String, dynamic> json) => ProductModel(
       id: json['id'],
@@ -30,5 +41,5 @@ class Rating {
   Rating({required this.rating, required this.count});
 
   factory Rating.fromJson(Map<String, dynamic> json) =>
-      Rating(rating: json['rating'], count: json['count']);
+      Rating(rating: json['rating']??0.0, count: json['count']);
 }

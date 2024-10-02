@@ -39,6 +39,10 @@ dependencies:
   dartz: ^0.10.1
   get_it: ^8.0.0
   flutter_bloc: ^8.1.6
+  skeletonizer: ^1.4.2
+  shimmer: ^3.0.0
+
+
 
 
 

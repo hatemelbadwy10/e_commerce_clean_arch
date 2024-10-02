@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'core/utils/service_locator.dart';
+import 'features/home/presentation/views/home_view.dart';
 
-void main() {
+void main() async {
+  await setup();
   runApp(const ECommerce());
 }
 class ECommerce extends StatelessWidget {
@@ -8,6 +11,8 @@ class ECommerce extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return const MaterialApp(
+      home: HomeView(),
+    );
   }
 }

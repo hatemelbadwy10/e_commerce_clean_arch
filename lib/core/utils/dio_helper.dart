@@ -10,7 +10,7 @@ class DioHelper {
         baseUrl: baseUrl,
         receiveDataWhenStatusError: true,
         contentType:
-            "multipart/form-data; boundary=<calculated when request is sent>",
+        "multipart/form-data; boundary=<calculated when request is sent>",
         headers: {"Accept": "application/json"}),
   );
 
@@ -22,16 +22,15 @@ class DioHelper {
     dio.interceptors.add(CustomApiInterceptor());
   }
 
-  Future<CustomResponse> sendToServer(
-      {required String url,
-      String? token,
-      Map<String, dynamic>? params,
-      Map<String, dynamic>? body,
-      String? lang,
-      void Function(int, int)? onSendProgress}) async {
+  Future<CustomResponse> sendToServer({required String url,
+    String? token,
+    Map<String, dynamic>? params,
+    Map<String, dynamic>? body,
+    String? lang,
+    void Function(int, int)? onSendProgress}) async {
     if (body != null) {
       body.removeWhere(
-        (key, value) => body[key] == null || body[key] == "",
+            (key, value) => body[key] == null || body[key] == "",
       );
     }
     try {
@@ -72,55 +71,31 @@ class DioHelper {
     }
   }
 
-  Future<CustomResponse> getFromServer({
+  Future<dynamic> getFromServer({
     required String url,
     Map<String, dynamic>? params,
   }) async {
     if (params != null) {
       params.removeWhere(
-          (key, value) => params[key] == null || params[key] == "");
+              (key, value) => params[key] == null || params[key] == "");
     }
-    try {
-      if (url.isNotEmpty) {
-        Response response = await dio.get(
-          url.startsWith("http") ? url : url,
-          options: Options(headers: {
-            "Accept": "application/json",
-            "Accept-Language": "ar",
-            "lang": "ar",
-          }),
-          queryParameters: params,
-        );
-        return CustomResponse(
-          success: true,
-          statusCode: 200,
-          msg: (response.data["message"] ??
-                  "Your request completed successfully")
-              .toString(),
-          response: response,
-        );
-      } else {
-        await Future.delayed(const Duration(milliseconds: 500));
-        return CustomResponse(
-          success: true,
-          statusCode: 200,
-        );
-      }
-    } on DioException catch (err) {
-      return handleServerError(err);
-    }
+
+    Response response = await dio.get(
+      url,
+      queryParameters: params,
+    );
+    return response.data;
   }
 
-  Future<CustomResponse> putToServer(
-      {required String url,
-      String? token,
-      Map<String, dynamic>? params,
-      Map<String, dynamic>? body,
-      String? lang,
-      void Function(int, int)? onSendProgress}) async {
+  Future<CustomResponse> putToServer({required String url,
+    String? token,
+    Map<String, dynamic>? params,
+    Map<String, dynamic>? body,
+    String? lang,
+    void Function(int, int)? onSendProgress}) async {
     if (body != null) {
       body.removeWhere(
-        (key, value) => body[key] == null || body[key] == "",
+            (key, value) => body[key] == null || body[key] == "",
       );
     }
     try {
@@ -163,16 +138,15 @@ class DioHelper {
     }
   }
 
-  Future<CustomResponse> removeFromServer(
-      {required String url,
-      String? token,
-      Map<String, dynamic>? params,
-      Map<String, dynamic>? body,
-      String? lang,
-      void Function(int, int)? onSendProgress}) async {
+  Future<CustomResponse> removeFromServer({required String url,
+    String? token,
+    Map<String, dynamic>? params,
+    Map<String, dynamic>? body,
+    String? lang,
+    void Function(int, int)? onSendProgress}) async {
     if (body != null) {
       body.removeWhere(
-        (key, value) => body[key] == null || body[key] == "",
+            (key, value) => body[key] == null || body[key] == "",
       );
     }
     try {
@@ -214,62 +188,63 @@ class DioHelper {
     }
   }
 
-  CustomResponse handleServerError(DioException err) {
-    if (err.type == DioExceptionType.badResponse) {
-      if (err.response!.data.toString().contains("DOCTYPE") ||
-          err.response!.data.toString().contains("<script>") ||
-          err.response!.data["exception"] != null) {
-        return CustomResponse(
-          errType: 2,
-          statusCode: err.response!.statusCode ?? 500,
-          msg: "Server Error",
-        );
-      }
-      if (err.response!.statusCode == 401) {
-        // showToast(err.response!.data["message"], duration: 3);
-        // navigateTo(page: const SplashView(), leaveHistory: false);
-      }
-      try {
-        return CustomResponse(
-          statusCode: err.response?.statusCode ?? 500,
-          errType: 1,
-          msg: (err.response!.data["errors"] as Map).values.first.first,
-          response: err.response,
-        );
-      } catch (e) {
-        return CustomResponse(
-          statusCode: err.response?.statusCode ?? 500,
-          errType: 1,
-          msg: err.response?.data["message"],
-          response: err.response,
-        );
-      }
-    } else if (err.type == DioExceptionType.receiveTimeout ||
-        err.type == DioExceptionType.sendTimeout) {
-      return CustomResponse(
-        statusCode: err.response?.statusCode ?? 500,
-        errType: 0,
-        msg: "Time out error",
-      );
-    } else {
-      if (err.response == null) {
-        // print(err.stackTrace);
-        // print(err.response);
+}
 
-        return CustomResponse(
-          statusCode: 402,
-          errType: 0,
-          msg: "No Connection",
-        );
-      }
-
+CustomResponse handleServerError(DioException err) {
+  if (err.type == DioExceptionType.badResponse) {
+    if (err.response!.data.toString().contains("DOCTYPE") ||
+        err.response!.data.toString().contains("<script>") ||
+        err.response!.data["exception"] != null) {
       return CustomResponse(
-        statusCode: 402,
         errType: 2,
-        success: false,
+        statusCode: err.response!.statusCode ?? 500,
         msg: "Server Error",
       );
     }
+    if (err.response!.statusCode == 401) {
+      // showToast(err.response!.data["message"], duration: 3);
+      // navigateTo(page: const SplashView(), leaveHistory: false);
+    }
+    try {
+      return CustomResponse(
+        statusCode: err.response?.statusCode ?? 500,
+        errType: 1,
+        msg: (err.response!.data["errors"] as Map).values.first.first,
+        response: err.response,
+      );
+    } catch (e) {
+      return CustomResponse(
+        statusCode: err.response?.statusCode ?? 500,
+        errType: 1,
+        msg: err.response?.data["message"],
+        response: err.response,
+      );
+    }
+  } else if (err.type == DioExceptionType.receiveTimeout ||
+      err.type == DioExceptionType.sendTimeout) {
+    return CustomResponse(
+      statusCode: err.response?.statusCode ?? 500,
+      errType: 0,
+      msg: "Time out error",
+    );
+  } else {
+    if (err.response == null) {
+      // print(err.stackTrace);
+      // print(err.response);
+
+      return CustomResponse(
+        statusCode: 402,
+        errType: 0,
+        msg: "No Connection",
+      );
+    }
+
+    return CustomResponse(
+      statusCode: 402,
+      errType: 2,
+      success: false,
+      msg: "Server Error",
+    );
   }
 }
 
@@ -283,10 +258,9 @@ class CustomApiInterceptor extends Interceptor {
   }
 
   @override
-  Future<void> onResponse(
-      Response response, ResponseInterceptorHandler handler) async {
-    if (kDebugMode && Platform.isAndroid) {
-    }
+  Future<void> onResponse(Response response,
+      ResponseInterceptorHandler handler) async {
+    if (kDebugMode && Platform.isAndroid) {}
     return super.onResponse(response, handler);
   }
 }
